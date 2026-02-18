@@ -1,0 +1,26 @@
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Docker
+.docker/
+.dockerignore
+
+# Environment
+.env
+.env.local
+.env*.local
+
+# IDE & Editor
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Claude
+.claude/

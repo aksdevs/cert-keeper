@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: default
+  labels:
+    app: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      serviceAccountName: cert-keeper
+      containers:
+        # Main application container.
+        - name: app
+          image: my-app:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+
+        # cert-keeper sidecar: TLS termination + cert management.
+        - name: cert-keeper
+          image: aksdevs/cert-keeper:latest
+          ports:
+            - containerPort: 8443
+              name: https
+          env:
+            - name: VAULT_ADDR
+              value: "https://vault.vault.svc.cluster.local:8200"
+            - name: VAULT_AUTH_ROLE
+              value: "cert-keeper"
+            - name: VAULT_PKI_ROLE
+              value: "cert-keeper"
+            - name: CERT_COMMON_NAME
+              value: "my-app.default.svc.cluster.local"
+            - name: CERT_ALT_NAMES
+              value: "my-app,my-app.default"
+            - name: CERT_TTL
+              value: "24h"
+            - name: LISTEN_ADDR
+              value: "0.0.0.0:8443"
+            - name: BACKEND_ADDR
+              value: "127.0.0.1:8080"
+            - name: RUST_LOG
+              value: "info"
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 32Mi
+          readinessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 10
+            periodSeconds: 30
+
+      volumes:
+        - name: certs
+          emptyDir:
+            medium: Memory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+  namespace: default
+spec:
+  selector:
+    app: my-app
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8443
+      protocol: TCP
