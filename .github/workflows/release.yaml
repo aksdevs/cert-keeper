@@ -15,12 +15,6 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux/amd64
-          - platform: linux/arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
