@@ -1,4 +1,4 @@
-# cert-keeper
+﻿# cert-keeper
 
 A Rust sidecar container for Kubernetes that manages TLS certificates from HashiCorp Vault and provides TLS termination.
 
@@ -14,15 +14,15 @@ A Rust sidecar container for Kubernetes that manages TLS certificates from Hashi
 ## Architecture
 
 ```
-                    
-                                       Pod                       
-                                                                 
-  TLS traffic  cert-keeper (:8443)  app (:8080)     
-                                                                
-                             /certs/tls.crt                  
-                                 /certs/tls.key   (emptyDir)     
-                                 /certs/ca.crt                   
-                    
+                    ┌─────────────────────────────────────────────┐
+                    │                   Pod                       │
+                    │                                             │
+  TLS traffic ──────┤──► cert-keeper (:8443) ──► app (:8080)     │
+                    │        │                                    │
+                    │        └──► /certs/tls.crt                  │
+                    │             /certs/tls.key   (emptyDir)     │
+                    │             /certs/ca.crt                   │
+                    └─────────────────────────────────────────────┘
 ```
 
 ## Configuration
