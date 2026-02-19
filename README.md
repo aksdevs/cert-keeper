@@ -129,13 +129,13 @@ docker buildx build -t cert-keeper:test .
 Releases are automated via GitHub Actions. Push a semver tag to trigger a build:
 
 ```bash
-git tag v0.1.0
+git tag v0.3.0
 git push --tags
 ```
 
 This builds multi-arch images (amd64 + arm64) and pushes to `aksdevs/cert-keeper` on DockerHub with tags:
-- `aksdevs/cert-keeper:0.1.0`
-- `aksdevs/cert-keeper:0.1`
+- `aksdevs/cert-keeper:0.3.0`
+- `aksdevs/cert-keeper:0.3`
 - `aksdevs/cert-keeper:latest`
 
 ## License
